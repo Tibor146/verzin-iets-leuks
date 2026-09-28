@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoQuest: Mexico & Verenigde Staten 🌎</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8); }
+        }
+        .map-pin {
+            cursor: pointer;
+            transition: transform 0.2s, fill 0.2s;
+        }
+        .map-pin:hover {
+            transform: scale(1.3);
+        }
+        .card-flip {
+            perspective: 1000px;
+        }
+        .card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header Navigation -->
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <span class="text-3xl">🇲🇽 🌎 🇺🇸</span>
+                <div>
+                    <h1 class="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-sky-400 to-amber-400">
+                        GeoQuest: Noord-Amerika
+                    </h1>
+                    <p class="text-xs text-slate-400">Aardrijkskunde: Mexico & Verenigde Staten</p>
+                </div>
+            </div>
+
+            <!-- Scoreboard -->
+            <div class="flex items-center space-x-6 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-700">
+                <div class="text-center">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Score</span>
+                    <span id="score-display" class="text-lg font-bold text-amber-400">0 XP</span>
+                </div>
+                <div class="h-8 w-px bg-slate-700"></div>
+                <div class="text-center">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Streak</span>
+                    <span id="streak-display" class="text-lg font-bold text-orange-500"><i class="fa-solid font-bold fa-fire"></i> 0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- Tab: Home / Hub -->
+        <section id="tab-home" class="tab-content">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <h2 class="text-3xl font-extrabold mb-3">Klaar voor de Aardrijkskunde Challenge?</h2>
+                <p class="text-slate-300">Test je kennis over de geografie, rivieren, gebergten, steden en cultuur van Mexico en de Verenigde Staten van Amerika.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1: Trivia Quiz -->
+                <div onclick="switchTab('quiz')" class="bg-slate-800 hover:bg-slate-700/80 border border-slate-700 hover:border-emerald-500 rounded-2xl p-6 cursor-pointer transition transform hover:-translate-y-1 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-emerald-400">Geo Trivia Quiz</h3>
+                        <p class="text-slate-400 text-sm">Beantwoord meerkeuzevragen over klimaat, bergen, grenzen en steden.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2 bg-emerald-600 hover:bg-emerald-500 font-semibold rounded-lg text-sm transition">
+                        Start Quiz <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- Card 2: Interactive Map -->
+                <div onclick="switchTab('map')" class="bg-slate-800 hover:bg-slate-700/80 border border-slate-700 hover:border-sky-500 rounded-2xl p-6 cursor-pointer transition transform hover:-translate-y-1 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-14 h-14 bg-sky-500/20 text-sky-400 rounded-xl flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-sky-400">Kaart Zoeker</h3>
+                        <p class="text-slate-400 text-sm">Vind de juiste hoofdsteden, rivieren en bezienswaardigheden op de kaart.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2 bg-sky-600 hover:bg-sky-500 font-semibold rounded-lg text-sm transition">
+                        Open Kaart <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- Card 3: Fast Sorter -->
+                <div onclick="switchTab('sorter')" class="bg-slate-800 hover:bg-slate-700/80 border border-slate-700 hover:border-amber-500 rounded-2xl p-6 cursor-pointer transition transform hover:-translate-y-1 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-14 h-14 bg-amber-500/20 text-amber-400 rounded-xl flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-amber-400">Land Sorter</h3>
+                        <p class="text-slate-400 text-sm">Bepaal zo snel mogelijk: hoort dit verschijnsel bij Mexico of bij de VS?</p>
+                    </div>
+                    <button class="mt-6 w-full py-2 bg-amber-600 hover:bg-amber-500 font-semibold rounded-lg text-sm transition">
+                        Start Sorter <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- Card 4: Study Atlas -->
+                <div onclick="switchTab('atlas')" class="bg-slate-800 hover:bg-slate-700/80 border border-slate-700 hover:border-purple-500 rounded-2xl p-6 cursor-pointer transition transform hover:-translate-y-1 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-14 h-14 bg-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-purple-400">Mini Atlas</h3>
+                        <p class="text-slate-400 text-sm">Bestudeer feiten, kaarten, klimaatkenmerken en geografische vergelijkingen.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2 bg-purple-600 hover:bg-purple-500 font-semibold rounded-lg text-sm transition">
+                        Open Atlas <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab: Quiz Game -->
+        <section id="tab-quiz" class="tab-content hidden">
+            <div class="max-w-2xl mx-auto bg-slate-800 rounded-2xl border border-slate-700 p-6 md:p-8 shadow-2xl">
+                <!-- Quiz Header -->
+                <div class="flex justify-between items-center border-b border-slate-700 pb-4 mb-6">
+                    <button onclick="switchTab('home')" class="text-slate-400 hover:text-white flex items-center text-sm">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Menu
+                    </button>
+                    <span id="quiz-progress" class="text-sm font-semibold bg-slate-700 px-3 py-1 rounded-full text-slate-300">
+                        Vraag 1/10
+                    </span>
+                </div>
+
+                <!-- Question -->
+                <div class="mb-6">
+                    <span id="quiz-category" class="text-xs uppercase font-bold tracking-wider text-emerald-400 mb-1 block">Categorie</span>
+                    <h3 id="quiz-question" class="text-xl font-bold leading-relaxed">Vraag laden...</h3>
+                </div>
+
+                <!-- Answer Options -->
+                <div id="quiz-options" class="space-y-3 mb-6">
+                    <!-- Dynamic buttons -->
+                </div>
+
+                <!-- Feedback Area -->
+                <div id="quiz-feedback" class="hidden p-4 rounded-xl mb-6 text-sm"></div>
+
+                <!-- Action Button -->
+                <button id="quiz-next-btn" onclick="nextQuestion()" class="hidden w-full py-3 bg-emerald-600 hover:bg-emerald-500 font-bold rounded-xl transition">
+                    Volgende Vraag <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Tab: Interactive Map Challenge -->
+        <section id="tab-map" class="tab-content hidden">
+            <div class="bg-slate-800 rounded-2xl border border-slate-700 p-6 shadow-2xl">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <div>
+                        <button onclick="switchTab('home')" class="text-slate-400 hover:text-white text-sm mb-2 inline-block">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Menu
+                        </button>
+                        <h2 class="text-2xl font-bold">Kaart Uitdaging</h2>
+                        <p id="map-prompt" class="text-sky-400 font-semibold text-lg">Klik op de juiste plek op de kaart!</p>
+                    </div>
+                    <div class="bg-slate-900 px-4 py-2 rounded-xl border border-slate-700 text-center">
+                        <span class="text-xs text-slate-400 block">Status</span>
+                        <span id="map-score-status" class="text-amber-400 font-bold">Zoek: Washington D.C.</span>
+                    </div>
+                </div>
+
+                <!-- SVG Map Container -->
+                <div class="relative bg-slate-900 rounded-xl p-4 border border-slate-700 overflow-hidden flex justify-center items-center">
+                    <svg id="north-america-map" viewBox="0 0 800 600" class="w-full h-auto max-h-[500px]">
+                        <!-- Background Water -->
+                        <rect width="800" height="600" fill="#0f172a" />
+                        <path d="M 0,0 L 800,0 L 800,600 L 0,600 Z" fill="#1e293b" opacity="0.5"/>
+
+                        <!-- USA Outline Simplified -->
+                        <path id="usa-land" d="M 120,120 L 250,110 L 400,100 L 580,120 L 700,160 L 730,220 L 680,310 L 630,320 L 590,390 L 560,390 L 540,320 L 400,310 L 280,320 L 180,280 L 140,200 Z" fill="#334155" stroke="#475569" stroke-width="2"/>
+                        <text x="380" y="200" fill="#64748b" font-size="28" font-weight="bold" opacity="0.6">Verenigde Staten</text>
+
+                        <!-- Mexico Outline Simplified -->
+                        <path id="mexico-land" d="M 180,280 L 280,320 L 400,310 L 540,320 L 520,380 L 480,480 L 410,500 L 360,450 L 290,410 L 220,340 Z" fill="#1e3a8a" opacity="0.6" stroke="#3b82f6" stroke-width="2"/>
+                        <!-- Baja California -->
+                        <path d="M 150,290 L 190,380 L 210,370 L 170,280 Z" fill="#1e3a8a" opacity="0.6" stroke="#3b82f6" stroke-width="2"/>
+                        <!-- Yucatán -->
+                        <path d="M 480,440 L 540,430 L 530,470 L 480,470 Z" fill="#1e3a8a" opacity="0.6" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="340" y="420" fill="#3b82f6" font-size="26" font-weight="bold" opacity="0.6">Mexico</text>
+
+                        <!-- Rivers -->
+                        <!-- Rio Grande (Border River) -->
+                        <path d="M 280,320 Q 350,350 480,440" fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="4"/>
+                        <!-- Mississippi River -->
+                        <path d="M 500,150 Q 480,250 540,320" fill="none" stroke="#38bdf8" stroke-width="3"/>
+
+                        <!-- Mountain Ranges (Visual indicators) -->
+                        <g opacity="0.4" stroke="#94a3b8" stroke-width="2" fill="none">
+                            <!-- Rocky Mountains -->
+                            <path d="M 230,130 L 240,150 L 250,135 L 260,160 L 270,140 L 280,180 L 290,240" />
+                            <!-- Sierra Madre -->
+                            <path d="M 300,340 L 310,370 L 320,350 L 330,390 L 340,420" />
+                        </g>
+
+                        <!-- Map Interactive Pins -->
+                        <!-- 1. Washington D.C. -->
+                        <g class="map-pin" onclick="checkMapClick('washington')" transform="translate(650, 210)">
+                            <circle r="12" fill="#ef4444" opacity="0.3" class="animate-ping"/>
+                            <circle r="8" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
+                            <text y="22" font-size="11" fill="#f8fafc" font-weight="bold" text-anchor="middle">Washington D.C.</text>
+                        </g>
+
+                        <!-- 2. Mexico City -->
+                        <g class="map-pin" onclick="checkMapClick('mexicocity')" transform="translate(380, 460)">
+                            <circle r="12" fill="#10b981" opacity="0.3" class="animate-ping"/>
+                            <circle r="8" fill="#10b981" stroke="#ffffff" stroke-width="2"/>
+                            <text y="22" font-size="11" fill="#f8fafc" font-weight="bold" text-anchor="middle">Mexico-Stad</text>
+                        </g>
+
+                        <!-- 3. Grand Canyon -->
+                        <g class="map-pin" onclick="checkMapClick('grandcanyon')" transform="translate(230, 250)">
+                            <circle r="8" fill="#f59e0b" stroke="#ffffff" stroke-width="2"/>
+                            <text y="-12" font-size="11" fill="#f8fafc" font-weight="bold" text-anchor="middle">Grand Canyon</text>
+                        </g>
+
+                        <!-- 4. Chichén Itzá (Yucatán) -->
+                        <g class="map-pin" onclick="checkMapClick('chichen')" transform="translate(510, 450)">
+                            <circle r="8" fill="#ec4899" stroke="#ffffff" stroke-width="2"/>
+                            <text y="22" font-size="11" fill="#f8fafc" font-weight="bold" text-anchor="middle">Chichén Itzá</text>
+                        </g>
+
+                        <!-- 5. Rio Grande River -->
+                        <g class="map-pin" onclick="checkMapClick('riogrande')" transform="translate(380, 360)">
+                            <circle r="8" fill="#06b6d4" stroke="#ffffff" stroke-width="2"/>
+                            <text y="22" font-size="11" fill="#f8fafc" font-weight="bold" text-anchor="middle">Rio Grande</text>
+                        </g>
+
+                        <!-- 6. Rocky Mountains -->
+                        <g class="map-pin" onclick="checkMapClick('rockies')" transform="translate(260, 180)">
+                            <circle r="8" fill="#8b5cf6" stroke="#ffffff" stroke-width="2"/>
+                            <text y="-12" font-size="11" fill="#f8fafc" font-weight="bold" text-anchor="middle">Rocky Mountains</text>
+                        </g>
+
+                        <!-- 7. Baja California -->
+                        <g class="map-pin" onclick="checkMapClick('bajacalifornia')" transform="translate(170, 320)">
+                            <circle r="8" fill="#84cc16" stroke="#ffffff" stroke-width="2"/>
+                            <text y="22" font-size="11" fill="#f8fafc" font-weight="bold" text-anchor="middle">Baja California</text>
+                        </g>
+
+                        <!-- 8. Florida -->
+                        <g class="map-pin" onclick="checkMapClick('florida')" transform="translate(600, 320)">
+                            <circle r="8" fill="#eab308" stroke="#ffffff" stroke-width="2"/>
+                            <text y="22" font-size="11" fill="#f8fafc" font-weight="bold" text-anchor="middle">Florida</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <div id="map-feedback" class="mt-4 p-4 rounded-xl text-center hidden font-bold"></div>
+            </div>
+        </section>
+
+        <!-- Tab: Land Sorter (Speed Game) -->
+        <section id="tab-sorter" class="tab-content hidden">
+            <div class="max-w-2xl mx-auto bg-slate-800 rounded-2xl border border-slate-700 p-6 md:p-8 shadow-2xl text-center">
+                <button onclick="switchTab('home')" class="text-slate-400 hover:text-white text-sm mb-4 inline-block float-left">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Menu
+                </button>
+                <div class="clear-both"></div>
+
+                <h2 class="text-2xl font-bold mb-2">Land Sorter ⚡</h2>
+                <p class="text-slate-400 text-sm mb-6">Sorteer de kenmerken, steden en geografie naar het juiste land!</p>
+
+                <!-- Target Card Display -->
+                <div id="sorter-card" class="bg-slate-900 border-2 border-amber-500/50 rounded-2xl p-8 mb-8 shadow-xl transform transition-all">
+                    <span id="sorter-category" class="text-xs uppercase font-bold text-amber-400 block mb-2">Categorie</span>
+                    <h3 id="sorter-item" class="text-3xl font-extrabold text-white">Laden...</h3>
+                </div>
+
+                <!-- Selection Buttons -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="checkSort('MEXICO')" class="py-4 bg-emerald-700 hover:bg-emerald-600 rounded-xl font-bold text-lg flex flex-col items-center justify-center space-y-1 transition transform active:scale-95 border border-emerald-500">
+                        <span class="text-2xl">🇲🇽</span>
+                        <span>Mexico</span>
+                    </button>
+                    <button onclick="checkSort('USA')" class="py-4 bg-blue-700 hover:bg-blue-600 rounded-xl font-bold text-lg flex flex-col items-center justify-center space-y-1 transition transform active:scale-95 border border-blue-500">
+                        <span class="text-2xl">🇺🇸</span>
+                        <span>Verenigde Staten</span>
+                    </button>
+                </div>
+
+                <div id="sorter-feedback" class="mt-4 h-6 font-bold text-sm"></div>
+            </div>
+        </section>
+
+        <!-- Tab: Mini Atlas -->
+        <section id="tab-atlas" class="tab-content hidden">
+            <div class="mb-6 flex justify-between items-center">
+                <button onclick="switchTab('home')" class="text-slate-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Menu
+                </button>
+                <h2 class="text-2xl font-bold text-purple-400">Mini Aardrijkskunde Atlas</h2>
+                <div></div>
+            </div>
+
+            <!-- Comparison Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- USA Overview -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="text-4xl">🇺🇸</span>
+                        <div>
+                            <h3 class="text-xl font-bold">Verenigde Staten van Amerika</h3>
+                            <p class="text-xs text-slate-400">Hoofdstad: Washington D.C.</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 text-sm text-slate-300">
+                        <li class="flex items-start"><i class="fa-solid fa-mountain text-amber-400 mt-1 mr-3"></i> <span><strong>Belangrijkste Gebergte:</strong> Rocky Mountains & Appalachen.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-water text-sky-400 mt-1 mr-3"></i> <span><strong>Grootste Rivier:</strong> Mississippi - Missouri rivierensysteem.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-cloud-sun text-yellow-400 mt-1 mr-3"></i> <span><strong>Klimaat:</strong> Van gematigd in het noorden tot subtropisch in Florida en woestijn in het zuidwesten.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-landmark text-emerald-400 mt-1 mr-3"></i> <span><strong>Bekende Topografie:</strong> Grand Canyon, Great Plains, Great Lakes.</span></li>
+                    </ul>
+                </div>
+
+                <!-- Mexico Overview -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="text-4xl">🇲🇽</span>
+                        <div>
+                            <h3 class="text-xl font-bold">Verenigde Mexicaanse Staten</h3>
+                            <p class="text-xs text-slate-400">Hoofdstad: Mexico-Stad (Ciudad de México)</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 text-sm text-slate-300">
+                        <li class="flex items-start"><i class="fa-solid fa-mountain text-amber-400 mt-1 mr-3"></i> <span><strong>Belangrijkste Gebergte:</strong> Sierra Madre Occidental & Oriental, Popocatépetl vulkaan.</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-water text-sky-400 mt-1 mr-3"></i> <span><strong>Grensrivier:</strong> Rio Grande (in Mexico bekend als Río Bravo).</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-cloud-sun text-yellow-400 mt-1 mr-3"></i> <span><strong>Klimaat:</strong> Tropisch in het zuiden, droog/woestijn in het noorden (Sonora-woestijn).</span></li>
+                        <li class="flex items-start"><i class="fa-solid fa-archway text-emerald-400 mt-1 mr-3"></i> <span><strong>Bekende Topografie:</strong> Schiereiland Yucatán, Baja California, Maya-ruïnes (Chichén Itzá).</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Grens en Relatie Info -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                <h3 class="text-lg font-bold text-amber-400 mb-3"><i class="fa-solid fa-handshake-simple mr-2"></i> De Grens & Geografische Buurlanden</h3>
+                <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                    De grens tussen de VS en Mexico is bijna 3.200 kilometer lang. Het oostelijke deel wordt gevormd door de natuurlijk meanderende rivier de **Rio Grande** (Río Bravo). 
+                    Beide landen delen een grote economische en geografische verbondenheid, inclusief gedeelde ecosystemen zoals de Sonorawestijn.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        GeoQuest Educatief Aardrijkskunde Project &copy; Mexico & Verenigde Staten
+    </footer>
+
+    <!-- Game Logic JavaScript -->
+    <script>
+        // Game State
+        let score = 0;
+        let streak = 0;
+
+        // --- QUIZ DATA ---
+        const quizQuestions = [
+            {
+                category: "Hoofdsteden",
+                question: "Wat is de hoofdstad van de Verenigde Mexicaanse Staten (Mexico)?",
+                options: ["Guadalajara", "Cancún", "Mexico-Stad", "Monterrey"],
+                correct: 2,
+                explanation: "Mexico-Stad (Ciudad de México) is de hoofdstad en een van de grootste metropolen ter wereld."
+            },
+            {
+                category: "Rivieren & Grens",
+                question: "Welke bekende rivier vormt een groot deel van de grens tussen de VS en Mexico?",
+                options: ["Mississippi", "Colorado", "Rio Grande / Río Bravo", "Hudson"],
+                correct: 2,
+                explanation: "De Rio Grande (in Mexico 'Río Bravo' genoemd) vormt de natuurlijke grens in het oosten."
+            },
+            {
+                category: "Gebergten",
+                question: "Welke grote bergketen strekt zich uit over het noordwesten van de VS tot in Canada?",
+                options: ["Sierra Madre", "Rocky Mountains", "Andes", "Alpen"],
+                correct: 1,
+                explanation: "De Rocky Mountains vormen de ruggengraat van West-Noord-Amerika."
+            },
+            {
+                category: "Relief & Landvormen",
+                question: "Op welk Mexicaans schiereiland bevinden zich veel cenotes en de beroemde Maya-stad Chichén Itzá?",
+                options: ["Baja California", "Yucatán", "Florida", "Sonora"],
+                correct: 1,
+                explanation: "Yucatán staat bekend om zijn kalksteenlandschap met cenotes en rijke Maya-historie."
+            },
+            {
+                category: "Klimaat & Woestijn",
+                question: "Welke grote woestijn ligt verspreid over het noordwesten van Mexico en het zuidwesten van de VS?",
+                options: ["Sahara", "Atacama", "Sonorawestijn", "Gobiwoestijn"],
+                correct: 2,
+                explanation: "De Sonorawestijn beslaat delen van Arizona, Californië en Mexicaanse staten zoals Sonora."
+            },
+            {
+                category: "Hoofdsteden",
+                question: "Wat is de officiële hoofdstad van de Verenigde Staten van Amerika?",
+                options: ["New York City", "Los Angeles", "Washington D.C.", "Chicago"],
+                correct: 2,
+                explanation: "Washington D.C. is het politieke centrum van de VS. New York is wel de grootste stad."
+            },
+            {
+                category: "Natuurrampen & Woestijnen",
+                question: "Welke beroemde kloof in de VS is gedurende miljoenen jaren uitgesleten door de Colorado-rivier?",
+                options: ["Death Valley", "Grand Canyon", "Yosemite Valley", "Copper Canyon"],
+                correct: 1,
+                explanation: "De Grand Canyon in Arizona is een van de beroemdste geografische verschijnselen ter wereld."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+
+        // --- MAP CHALLENGE DATA ---
+        const mapTargets = [
+            { id: "washington", name: "Washington D.C. (Hoofdstad VS)" },
+            { id: "mexicocity", name: "Mexico-Stad (Hoofdstad Mexico)" },
+            { id: "riogrande", name: "De Grensrivier Rio Grande" },
+            { id: "grandcanyon", name: "De Grand Canyon" },
+            { id: "chichen", name: "Chichén Itzá (Yucatán)" },
+            { id: "rockies", name: "De Rocky Mountains" },
+            { id: "bajacalifornia", name: "Baja California" },
+            { id: "florida", name: "Schiereiland Florida" }
+        ];
+
+        let currentMapTargetIndex = 0;
+
+        // --- LAND SORTER DATA ---
+        const sorterItems = [
+            { name: "Popocatépetl vulkaan", country: "MEXICO", cat: "Gebergte & Vulkanen" },
+            { name: "Mississippi Rivier", country: "USA", cat: "Rivieren" },
+            { name: "Schiereiland Yucatán", country: "MEXICO", cat: "Schiereiland" },
+            { name: "Great Lakes (Grote Meren)", country: "USA", cat: "Meren" },
+            { name: "Mariachimuziek & Tacos", country: "MEXICO", cat: "Cultuur" },
+            { name: "Statue of Liberty (Vrijheidsbeeld)", country: "USA", cat: "Monumenten" },
+            { name: "Sierra Madre Oriental", country: "MEXICO", cat: "Gebergte" },
+            { name: "Everglades Moerasgebied", country: "USA", cat: "Natuurgebied" },
+            { name: "Guadalajara", country: "MEXICO", cat: "Steden" },
+            { name: "Hollywood & Silicon Valley", country: "USA", cat: "Regio's" }
+        ];
+
+        let currentSortIndex = 0;
+
+        // Navigation
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            if (tabId === 'quiz') startQuiz();
+            if (tabId === 'map') startMapGame();
+            if (tabId === 'sorter') startSorterGame();
+        }
+
+        // Score Management
+        function addScore(points) {
+            score += points;
+            streak++;
+            document.getElementById('score-display').innerText = `${score} XP`;
+            document.getElementById('streak-display').innerHTML = `<i class="fa-solid fa-fire"></i> ${streak}`;
+        }
+
+        function resetStreak() {
+            streak = 0;
+            document.getElementById('streak-display').innerHTML = `<i class="fa-solid fa-fire text-slate-500"></i> 0`;
+        }
+
+        // --- QUIZ GAME LOGIC ---
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = quizQuestions[currentQuestionIndex];
+            document.getElementById('quiz-progress').innerText = `Vraag ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+            document.getElementById('quiz-category').innerText = q.category;
+            document.getElementById('quiz-question').innerText = q.question;
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 bg-slate-700 hover:bg-slate-600 rounded-xl font-medium transition border border-slate-600 flex justify-between items-center";
+                btn.innerHTML = `<span>${opt}</span> <i class="fa-regular fa-circle text-slate-400"></i>`;
+                btn.onclick = () => selectOption(idx);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(index) {
+            const q = quizQuestions[currentQuestionIndex];
+            const optionsBtns = document.getElementById('quiz-options').children;
+            const feedback = document.getElementById('quiz-feedback');
+
+            // Disable all buttons
+            for (let btn of optionsBtns) {
+                btn.disabled = true;
+            }
+
+            if (index === q.correct) {
+                optionsBtns[index].classList.remove('bg-slate-700');
+                optionsBtns[index].classList.add('bg-emerald-600', 'border-emerald-400');
+                optionsBtns[index].querySelector('i').className = "fa-solid fa-circle-check text-white";
+
+                feedback.className = "p-4 rounded-xl mb-6 text-sm bg-emerald-900/50 border border-emerald-500 text-emerald-200 block";
+                feedback.innerHTML = `<strong>Uitstekend! 🎉</strong> ${q.explanation}`;
+                addScore(100 + (streak * 10));
+            } else {
+                optionsBtns[index].classList.remove('bg-slate-700');
+                optionsBtns[index].classList.add('bg-rose-600', 'border-rose-400');
+                optionsBtns[index].querySelector('i').className = "fa-solid fa-circle-xmark text-white";
+
+                // Highlight correct one
+                optionsBtns[q.correct].classList.remove('bg-slate-700');
+                optionsBtns[q.correct].classList.add('bg-emerald-600/50');
+
+                feedback.className = "p-4 rounded-xl mb-6 text-sm bg-rose-900/50 border border-rose-500 text-rose-200 block";
+                feedback.innerHTML = `<strong>Helaas!</strong> Het juiste antwoord was: <em>${q.options[q.correct]}</em>.<br>${q.explanation}`;
+                resetStreak();
+            }
+
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizQuestions.length) {
+                showQuestion();
+            } else {
+                // Quiz completed
+                document.getElementById('quiz-question').innerText = "Gefeliciteerd! Je hebt de Geo Quiz voltooid! 🏆";
+                document.getElementById('quiz-options').innerHTML = '';
+                document.getElementById('quiz-feedback').className = "p-6 rounded-xl bg-slate-900 text-center text-amber-400 font-bold block";
+                document.getElementById('quiz-feedback').innerHTML = `Eindscore behouden! Oefen nog eens om je kennis te versterken.`;
+                document.getElementById('quiz-next-btn').classList.add('hidden');
+            }
+        }
+
+        // --- MAP GAME LOGIC ---
+        function startMapGame() {
+            currentMapTargetIndex = 0;
+            updateMapPrompt();
+        }
+
+        function updateMapPrompt() {
+            const target = mapTargets[currentMapTargetIndex];
+            document.getElementById('map-prompt').innerText = `Zoek en klik op: ${target.name}`;
+            document.getElementById('map-score-status').innerText = `Opdracht ${currentMapTargetIndex + 1}/${mapTargets.length}`;
+            document.getElementById('map-feedback').classList.add('hidden');
+        }
+
+        function checkMapClick(clickedId) {
+            const target = mapTargets[currentMapTargetIndex];
+            const feedback = document.getElementById('map-feedback');
+            feedback.classList.remove('hidden');
+
+            if (clickedId === target.id) {
+                feedback.className = "mt-4 p-4 rounded-xl text-center font-bold bg-emerald-900/80 text-emerald-300 border border-emerald-500";
+                feedback.innerText = "Juist! Goed gevonden! +150 XP";
+                addScore(150);
+
+                setTimeout(() => {
+                    currentMapTargetIndex = (currentMapTargetIndex + 1) % mapTargets.length;
+                    updateMapPrompt();
+                }, 1500);
+            } else {
+                feedback.className = "mt-4 p-4 rounded-xl text-center font-bold bg-rose-900/80 text-rose-300 border border-rose-500";
+                feedback.innerText = "Niet helemaal! Probeer het nog eens.";
+                resetStreak();
+            }
+        }
+
+        // --- LAND SORTER LOGIC ---
+        function startSorterGame() {
+            currentSortIndex = 0;
+            showSorterCard();
+        }
+
+        function showSorterCard() {
+            if (currentSortIndex >= sorterItems.length) {
+                currentSortIndex = 0; // Loop or reset
+            }
+            const item = sorterItems[currentSortIndex];
+            document.getElementById('sorter-category').innerText = item.cat;
+            document.getElementById('sorter-item').innerText = item.name;
+            document.getElementById('sorter-feedback').innerText = '';
+        }
+
+        function checkSort(country) {
+            const item = sorterItems[currentSortIndex];
+            const feedback = document.getElementById('sorter-feedback');
+
+            if (country === item.country) {
+                feedback.className = "mt-4 h-6 font-bold text-sm text-emerald-400";
+                feedback.innerText = "Correct! +50 XP";
+                addScore(50);
+            } else {
+                feedback.className = "mt-4 h-6 font-bold text-sm text-rose-400";
+                feedback.innerText = `Fout! ${item.name} hoort bij ${item.country === 'MEXICO' ? 'Mexico' : 'de Verenigde Staten'}.`;
+                resetStreak();
+            }
+
+            currentSortIndex++;
+            setTimeout(() => {
+                showSorterCard();
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
